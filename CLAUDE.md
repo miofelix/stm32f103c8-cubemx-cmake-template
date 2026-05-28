@@ -31,6 +31,7 @@ cmake --build --preset Debug --target reset   # reset target
 - **Debug builds enable `USE_FULL_ASSERT`** (HAL/LL `assert_param` checking), wired via `target_compile_definitions(stm32cubemx INTERFACE $<$<CONFIG:Debug>:USE_FULL_ASSERT>)` in the root `CMakeLists.txt` so it reaches application *and* driver sources. A failed check halts in `assert_failed()` (`Core/Src/main.c`, `USER CODE BEGIN 6`). `Core/Inc/stm32_assert.h` routes the LL drivers' asserts to the same handler. Release builds define nothing, so asserts compile out. Because the define lives in CMake (not `hal_conf.h`), it survives CubeMX regeneration.
 - **`.vscode/`** ships shared `launch.json` (Cortex-Debug + OpenOCD one-click debug), `tasks.json` (build/flash/erase/reset), and `extensions.json`. These are whitelisted in `.gitignore`.
 - **`.clangd`** points clangd at `build/Debug/compile_commands.json` so vendor headers resolve; run `cmake --preset Debug` once to generate the database. IncludeCleaner hints are disabled (too noisy on HAL).
+- **`scripts/rename.sh <new_name>`** renames the project (CMake target, the `.ioc` fields and filename, `.vscode/launch.json`, and the docs). It reads the current name from `CMakeLists.txt`, so it is re-runnable; it does **not** retarget the MCU.
 
 ## Architecture & where code goes
 
