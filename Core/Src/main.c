@@ -169,8 +169,14 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* A failed HAL parameter check lands here in Debug builds (USE_FULL_ASSERT).
+     Inspect `file` and `line` in the debugger to locate the offending call. */
+  (void)file;
+  (void)line;
+  __disable_irq();
+  while (1)
+  {
+  }
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

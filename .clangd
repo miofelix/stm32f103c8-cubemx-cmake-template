@@ -1,0 +1,11 @@
+# Point clangd at the CMake compilation database so HAL/CMSIS headers resolve
+# with the cross-compiler's include paths and defines. Generate it once with
+# `cmake --preset Debug` (CMAKE_EXPORT_COMPILE_COMMANDS is already on).
+CompileFlags:
+  CompilationDatabase: build/Debug
+
+# IncludeCleaner is too noisy on the vendor HAL/CMSIS headers (they intentionally
+# fan out includes via stm32f1xx_hal_conf.h), so disable its unused/missing hints.
+Diagnostics:
+  UnusedIncludes: None
+  MissingIncludes: None

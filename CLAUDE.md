@@ -13,6 +13,7 @@ System clock runs at **72 MHz**, derived from an 8 MHz external crystal (HSE →
 ```sh
 cmake --preset Debug          # configure (also: Release)
 cmake --build --preset Debug  # build -> build/Debug/stm32f103_project.{elf,hex,bin,map}
+cmake --workflow --preset Debug  # configure + build in one step (needs CMake >= 3.25)
 
 cmake --build --preset Debug --target flash   # flash via OpenOCD (ST-LINK default)
 cmake --build --preset Debug --target erase   # mass erase
@@ -23,7 +24,13 @@ cmake --build --preset Debug --target reset   # reset target
 - Flash adapter override (per-command): `FLASH_ADAPTER=daplink cmake --build --preset Debug --target flash` (values: `stlink`, `daplink`).
 - OpenOCD target override: `OPENOCD_TARGET=target/stm32f1x.cfg ...`.
 - `.hex`/`.bin` are produced as a POST_BUILD step on every link (see `cmake/firmware-images.cmake`).
-- There are no automated tests; verification is done on-target via flash.
+- There are no automated tests; verification is done on-target via flash. CI (`.github/workflows/build.yml`) builds both presets on push/PR and uploads the firmware images as artifacts.
+
+## Tooling & DX
+
+- **Debug builds enable `USE_FULL_ASSERT`** (HAL/LL `assert_param` checking), wired via `target_compile_definitions(stm32cubemx INTERFACE $<$<CONFIG:Debug>:USE_FULL_ASSERT>)` in the root `CMakeLists.txt` so it reaches application *and* driver sources. A failed check halts in `assert_failed()` (`Core/Src/main.c`, `USER CODE BEGIN 6`). `Core/Inc/stm32_assert.h` routes the LL drivers' asserts to the same handler. Release builds define nothing, so asserts compile out. Because the define lives in CMake (not `hal_conf.h`), it survives CubeMX regeneration.
+- **`.vscode/`** ships shared `launch.json` (Cortex-Debug + OpenOCD one-click debug), `tasks.json` (build/flash/erase/reset), and `extensions.json`. These are whitelisted in `.gitignore`.
+- **`.clangd`** points clangd at `build/Debug/compile_commands.json` so vendor headers resolve; run `cmake --preset Debug` once to generate the database. IncludeCleaner hints are disabled (too noisy on HAL).
 
 ## Architecture & where code goes
 
@@ -38,8 +45,22 @@ Source layout:
 - `Core/Inc`, `Core/Src` — application code (CubeMX-managed peripheral init + `main.c`).
 - `Drivers/STM32F1xx_HAL_Driver`, `Drivers/CMSIS` — vendor HAL and CMSIS. Treat as read-only.
 
+## HAL drivers are batteries-included (important)
+
+The **complete** STM32F1 HAL/LL driver set (from STM32Cube_FW_F1_V1.8.7) is vendored into `Drivers/STM32F1xx_HAL_Driver/{Src,Inc}` and compiled unconditionally — not just the peripherals currently used. So you can call `HAL_TIM_*`, `HAL_I2C_*`, `HAL_UART_*`, `HAL_SPI_*`, `HAL_CAN_*`, USB (`HAL_PCD_*`), etc. **without re-running CubeMX** just to pull in a driver source file.
+
+How it works (two cooperating pieces):
+- **Build:** the root `CMakeLists.txt` (never regenerated) swaps the curated HAL subset on the `STM32_Drivers` target for a `CONFIGURE_DEPENDS` glob of every `Drivers/STM32F1xx_HAL_Driver/Src/*.c`. Non-HAL sources (e.g. `system_stm32f1xx.c`) from the CubeMX list are preserved; nothing is double-compiled. See the `# Batteries-included HAL` block.
+- **Gating:** `Core/Inc/stm32f1xx_hal_conf.h` enables `HAL_<P>_MODULE_ENABLED` for every peripheral the F103C8 die actually has. A disabled module's `.c` compiles to nothing, and unused code is dropped at link by `--gc-sections` — so compiling the full HAL does **not** grow the image (clean build links at ~4 KB flash).
+
+Modules left **disabled** in `hal_conf.h` are peripherals absent on the STM32F103C8 die (DAC, ETH, FSMC/SRAM/NOR/NAND/PCCARD, SDIO/SD/MMC, I2S, CEC, CRYP, USB-host HCD). Enabling them would `#error` or fail to compile; each carries an inline reason comment. LL drivers (`stm32f1xx_ll_*.c`) compile only when you define `USE_FULL_LL_DRIVER`.
+
+To **add a peripheral in code**: enable its `HAL_<P>_MODULE_ENABLED` in `hal_conf.h` if not already on, then call the API — no CubeMX round-trip needed. Use CubeMX only when you want it to generate the *init/MSP* code (pin mux, clocks, NVIC) for that peripheral.
+
 ## CubeMX code-generation contract (important)
 
 `Core/` files are owned by CubeMX (`KeepUserCode=true`). When the `.ioc` is regenerated, **everything outside the `USER CODE BEGIN X` / `USER CODE END X` markers is overwritten.** Only write application code inside those marker blocks. Editing peripheral configuration (clocks, pins, NVIC) should be done in CubeMX via `stm32f103_project.ioc`, not by hand-editing the generated init code.
 
 When adding application modules, prefer creating new files and registering them in the **root** `CMakeLists.txt` (not the CubeMX-generated one), so they survive regeneration.
+
+Caveat with the batteries-included HAL: `Core/Inc/stm32f1xx_hal_conf.h` is CubeMX-managed, so regenerating the `.ioc` rewrites it and **reverts the module enables to only the peripherals used in the project**. After a regen, re-apply the full set of `HAL_<P>_MODULE_ENABLED` if you still want every driver available from code. The vendored driver files and the root-`CMakeLists.txt` glob are unaffected by regeneration.
