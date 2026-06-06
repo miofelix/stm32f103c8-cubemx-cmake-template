@@ -16,6 +16,9 @@ install_manifest.txt
 *.cmake.user
 CMakeUserPresets.json
 
+# STM32CubeMX local workspace metadata
+/.mxproject
+
 # Ninja / Make generated files
 .ninja_deps
 .ninja_log

@@ -11,7 +11,6 @@
 *.yml text eol=lf
 CMakeLists.txt text eol=lf
 CMakePresets.json text eol=lf
-.mxproject text eol=lf
 *.ioc text eol=lf
 *.md text eol=lf
 

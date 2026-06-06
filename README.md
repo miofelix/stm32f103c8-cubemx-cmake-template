@@ -16,6 +16,7 @@ Minimal macOS-only CMake template for the STM32F103C8Tx (Blue Pill), generated b
 ├── docs/
 │   └── STM32F103C8T6-CubeMX-Configuration-Guide.md  # CubeMX setup reference
 ├── scripts/
+│   ├── check-template.sh         # Validate the CubeMX/template ownership contract
 │   └── rename.sh                 # Rename the project (CMake target, .ioc, docs)
 ├── CMakeLists.txt
 ├── CMakePresets.json
@@ -38,6 +39,34 @@ rm -rf build && cmake --preset Debug
 The script reads the current name from `CMakeLists.txt`, so it is safe to re-run.
 Targeting a different STM32 is a separate manual step: swap `startup_*.s`, the
 `*.ld` linker script, and the `STM32F103xB` / `-mcpu=cortex-m3` settings.
+
+## Ownership model
+
+STM32CubeMX owns the generated firmware code and its dependency closure:
+
+- `Core/`
+- `Drivers/`
+- `cmake/stm32cubemx/`
+- `startup_*.s`
+- `*.ld`
+- the generated parts of the root `CMakeLists.txt`
+
+The tracked `.ioc` file is the source of truth for clocks, pins, peripherals,
+middleware, HAL modules, and generated source selection. Add or remove a
+peripheral in CubeMX, then regenerate the project. Do not manually vendor the
+complete HAL package or override the generated `STM32_Drivers` source list.
+
+The template owns the surrounding assets: presets, root helper CMake modules,
+scripts, CI, editor configuration, and documentation. CubeMX's `.mxproject` is
+local workspace metadata and is intentionally ignored.
+
+After every CubeMX regeneration, run:
+
+```sh
+scripts/check-template.sh
+cmake --workflow --preset Debug
+cmake --workflow --preset Release
+```
 
 ## Documentation
 
@@ -105,15 +134,16 @@ build/Debug/stm32f103_project.map
 ## Template CI
 
 GitHub Actions runs on macOS, builds both Debug and Release presets, uploads the
-firmware images, and validates `scripts/rename.sh` by building a renamed
-temporary copy of the template.
+firmware images, validates the CubeMX/template ownership contract, and checks
+`scripts/rename.sh` by building a renamed temporary copy of the template.
 
 ## HAL project convention
 
-`Core/Inc/stm32f1xx_hal_conf.h` is the HAL module-selection file. The root
-`CMakeLists.txt` compiles all vendored STM32F1 HAL source files so supported
-peripherals can be used without adding driver files manually, but
-`HAL_<P>_MODULE_ENABLED` switches still belong in `hal_conf.h`.
+`Core/Inc/stm32f1xx_hal_conf.h`, the HAL files under `Drivers/`, and the
+`STM32_Drivers` source list are all generated from the `.ioc` configuration.
+Treat them as one CubeMX-managed unit. To use another HAL peripheral, enable and
+configure it in CubeMX, then regenerate so its module define, headers, sources,
+clock setup, and MSP code stay consistent.
 
 Application code should live in `USER CODE BEGIN` / `USER CODE END` blocks or in
 new user-owned source files registered from the root `CMakeLists.txt`.

@@ -34,41 +34,48 @@
   */
 
 #define HAL_MODULE_ENABLED
-#define HAL_ADC_MODULE_ENABLED
-/*#define HAL_CRYP_MODULE_ENABLED   */   /* no crypto on STM32F1 */
-#define HAL_CAN_MODULE_ENABLED
-/*#define HAL_CAN_LEGACY_MODULE_ENABLED   */   /* deprecated; use HAL_CAN */
-/*#define HAL_CEC_MODULE_ENABLED   */   /* not on STM32F103 */
-#define HAL_CORTEX_MODULE_ENABLED
-#define HAL_CRC_MODULE_ENABLED
-/*#define HAL_DAC_MODULE_ENABLED   */   /* high-density only, not on F103C8 */
-#define HAL_DMA_MODULE_ENABLED
-/*#define HAL_ETH_MODULE_ENABLED   */   /* STM32F107 connectivity line only */
-#define HAL_EXTI_MODULE_ENABLED
-#define HAL_FLASH_MODULE_ENABLED
+  /*#define HAL_ADC_MODULE_ENABLED   */
+/*#define HAL_CRYP_MODULE_ENABLED   */
+/*#define HAL_CAN_MODULE_ENABLED   */
+/*#define HAL_CAN_LEGACY_MODULE_ENABLED   */
+/*#define HAL_CEC_MODULE_ENABLED   */
+/*#define HAL_CORTEX_MODULE_ENABLED   */
+/*#define HAL_CRC_MODULE_ENABLED   */
+/*#define HAL_DAC_MODULE_ENABLED   */
+/*#define HAL_DMA_MODULE_ENABLED   */
+/*#define HAL_ETH_MODULE_ENABLED   */
+/*#define HAL_FLASH_MODULE_ENABLED   */
 #define HAL_GPIO_MODULE_ENABLED
-#define HAL_I2C_MODULE_ENABLED
-/*#define HAL_I2S_MODULE_ENABLED   */   /* high-density/connectivity only */
-#define HAL_IRDA_MODULE_ENABLED
-#define HAL_IWDG_MODULE_ENABLED
-/*#define HAL_NOR_MODULE_ENABLED   */   /* FSMC: high-density only */
-/*#define HAL_NAND_MODULE_ENABLED   */   /* FSMC: high-density only */
-/*#define HAL_PCCARD_MODULE_ENABLED   */   /* FSMC: high-density only */
-#define HAL_PCD_MODULE_ENABLED
-/*#define HAL_HCD_MODULE_ENABLED   */   /* USB host not on STM32F1 */
+/*#define HAL_I2C_MODULE_ENABLED   */
+/*#define HAL_I2S_MODULE_ENABLED   */
+/*#define HAL_IRDA_MODULE_ENABLED   */
+/*#define HAL_IWDG_MODULE_ENABLED   */
+/*#define HAL_NOR_MODULE_ENABLED   */
+/*#define HAL_NAND_MODULE_ENABLED   */
+/*#define HAL_PCCARD_MODULE_ENABLED   */
+/*#define HAL_PCD_MODULE_ENABLED   */
+/*#define HAL_HCD_MODULE_ENABLED   */
+/*#define HAL_PWR_MODULE_ENABLED   */
+/*#define HAL_RCC_MODULE_ENABLED   */
+/*#define HAL_RTC_MODULE_ENABLED   */
+/*#define HAL_SD_MODULE_ENABLED   */
+/*#define HAL_MMC_MODULE_ENABLED   */
+/*#define HAL_SDRAM_MODULE_ENABLED   */
+/*#define HAL_SMARTCARD_MODULE_ENABLED   */
+/*#define HAL_SPI_MODULE_ENABLED   */
+/*#define HAL_SRAM_MODULE_ENABLED   */
+/*#define HAL_TIM_MODULE_ENABLED   */
+/*#define HAL_UART_MODULE_ENABLED   */
+/*#define HAL_USART_MODULE_ENABLED   */
+/*#define HAL_WWDG_MODULE_ENABLED   */
+
+#define HAL_CORTEX_MODULE_ENABLED
+#define HAL_DMA_MODULE_ENABLED
+#define HAL_FLASH_MODULE_ENABLED
+#define HAL_EXTI_MODULE_ENABLED
+#define HAL_GPIO_MODULE_ENABLED
 #define HAL_PWR_MODULE_ENABLED
 #define HAL_RCC_MODULE_ENABLED
-#define HAL_RTC_MODULE_ENABLED
-/*#define HAL_SD_MODULE_ENABLED   */   /* SDIO: high-density only */
-/*#define HAL_MMC_MODULE_ENABLED   */   /* SDIO: high-density only */
-/*#define HAL_SDRAM_MODULE_ENABLED   */   /* FSMC: high-density only */
-#define HAL_SMARTCARD_MODULE_ENABLED
-#define HAL_SPI_MODULE_ENABLED
-/*#define HAL_SRAM_MODULE_ENABLED   */   /* FSMC: high-density only */
-#define HAL_TIM_MODULE_ENABLED
-#define HAL_UART_MODULE_ENABLED
-#define HAL_USART_MODULE_ENABLED
-#define HAL_WWDG_MODULE_ENABLED
 
 /* ########################## Oscillator Values adaptation ####################*/
 /**

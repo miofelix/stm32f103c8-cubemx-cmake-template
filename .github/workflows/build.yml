@@ -27,6 +27,9 @@ jobs:
           brew list --formula open-ocd >/dev/null 2>&1 || brew install open-ocd
           brew list --cask gcc-arm-embedded >/dev/null 2>&1 || brew install --cask gcc-arm-embedded
 
+      - name: Verify template contract
+        run: scripts/check-template.sh
+
       - name: Configure
         run: cmake --preset ${{ matrix.preset }}
 
@@ -42,6 +45,7 @@ jobs:
           rm "$tmpdir/repo.tar"
           cd "$tmpdir"
           scripts/rename.sh ci_demo_app
+          scripts/check-template.sh
           cmake --preset Debug
           cmake --build --preset Debug
           cmake --preset Release

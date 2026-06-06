@@ -37,20 +37,9 @@ add_executable(${CMAKE_PROJECT_NAME})
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
 
-# --- Batteries-included HAL --------------------------------------------------
-# cmake/stm32cubemx/CMakeLists.txt (CubeMX-regenerated) only compiles the driver
-# sources for peripherals enabled in the .ioc. To let any F103C8 peripheral build
-# without re-running CubeMX just to add a driver file, swap that curated subset
-# on the STM32_Drivers target for every source under Drivers/.../Src. Module
-# selection remains in Core/Inc/stm32f1xx_hal_conf.h, matching the STM32 HAL
-# project convention. Disabled modules compile to nothing, and unused code is
-# dropped at link time by -ffunction-sections/-fdata-sections + --gc-sections.
-get_target_property(_mx_driver_src STM32_Drivers SOURCES)
-list(FILTER _mx_driver_src EXCLUDE REGEX "/Drivers/STM32F1xx_HAL_Driver/Src/")
-file(GLOB _hal_full_src CONFIGURE_DEPENDS
-    ${CMAKE_SOURCE_DIR}/Drivers/STM32F1xx_HAL_Driver/Src/*.c)
-set_property(TARGET STM32_Drivers PROPERTY SOURCES ${_mx_driver_src} ${_hal_full_src})
-# -----------------------------------------------------------------------------
+# CubeMX owns the generated source list and HAL module selection. Add or remove
+# peripherals in the .ioc file and regenerate instead of overriding
+# STM32_Drivers here.
 
 # Enable HAL parameter checking (assert_param) in Debug builds only. Applied to
 # the shared interface target so it reaches BOTH application and driver sources;
