@@ -13,11 +13,9 @@ Minimal macOS-only CMake template for the STM32F103C8Tx (Blue Pill), generated b
 │   ├── flash-targets.cmake       # Add flash, erase and reset targets
 │   ├── openocd-flash.cmake       # OpenOCD command wrapper
 │   └── stm32cubemx/              # STM32CubeMX generated CMake target
-├── docs/
-│   └── STM32F103C8T6-CubeMX-Configuration-Guide.md  # CubeMX setup reference
 ├── scripts/
 │   ├── check-template.sh         # Validate the CubeMX/template ownership contract
-│   └── rename.sh                 # Rename the project (CMake target, .ioc, docs)
+│   └── rename.sh                 # Rename the project (CMake target and .ioc)
 ├── CMakeLists.txt
 ├── CMakePresets.json
 ├── STM32F103XX_FLASH.ld
@@ -28,8 +26,7 @@ Minimal macOS-only CMake template for the STM32F103C8Tx (Blue Pill), generated b
 ## Use as a template
 
 After copying this repo, rename the project in one step — it updates the CMake
-target (`CMAKE_PROJECT_NAME`), the CubeMX `.ioc` (fields **and** filename), the
-VS Code debug config, and the docs:
+target (`CMAKE_PROJECT_NAME`) and the CubeMX `.ioc` fields and filename:
 
 ```sh
 scripts/rename.sh my_project      # letters, digits, '_' and '-'
@@ -57,8 +54,8 @@ peripheral in CubeMX, then regenerate the project. Do not manually vendor the
 complete HAL package or override the generated `STM32_Drivers` source list.
 
 The template owns the surrounding assets: presets, root helper CMake modules,
-scripts, CI, editor configuration, and documentation. CubeMX's `.mxproject` is
-local workspace metadata and is intentionally ignored.
+scripts, CI, and root-level guidance. CubeMX's `.mxproject`, `.vscode/`, and
+`docs/` are local-only assets and are intentionally ignored.
 
 After every CubeMX regeneration, run:
 
@@ -67,10 +64,6 @@ scripts/check-template.sh
 cmake --workflow --preset Debug
 cmake --workflow --preset Release
 ```
-
-## Documentation
-
-- [STM32CubeMX Configuration Guide](docs/STM32F103C8T6-CubeMX-Configuration-Guide.md) — a complete reference for configuring the STM32F103C8T6 in CubeMX: clock tree, full LQFP48 pinout, peripheral setup (ADC/USART/I2C/SPI/TIM/USB/CAN/DMA/NVIC), and pin-conflict avoidance.
 
 ## Prerequisites (macOS only)
 

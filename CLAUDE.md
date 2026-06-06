@@ -31,10 +31,9 @@ cmake --build --preset Debug --target reset   # reset target
 ## Tooling & DX
 
 - **Debug builds enable `USE_FULL_ASSERT`** (HAL/LL `assert_param` checking), wired through `target_compile_definitions(stm32cubemx INTERFACE ...)` in the root `CMakeLists.txt` so it reaches application *and* driver sources. A failed check halts in `assert_failed()` (`Core/Src/main.c`, `USER CODE BEGIN 6`). `Core/Inc/stm32_assert.h` routes the LL drivers' asserts to the same handler. Release builds define nothing, so asserts compile out. Because the define lives in CMake (not `hal_conf.h`), it survives CubeMX regeneration.
-- **`.vscode/`** ships shared `launch.json` (Cortex-Debug + OpenOCD one-click debug), `tasks.json` (build/flash/erase/reset), and `extensions.json`. These are whitelisted in `.gitignore`.
 - **`.clangd`** points clangd at `build/Debug/compile_commands.json` so vendor headers resolve; run `cmake --preset Debug` once to generate the database. IncludeCleaner hints are disabled (too noisy on HAL).
-- **`scripts/rename.sh <new_name>`** renames the project (CMake target, the `.ioc` fields and filename, `.vscode/launch.json`, and the docs). It reads the current name from `CMakeLists.txt`, so it is re-runnable; it does **not** retarget the MCU. CI validates this workflow.
-- **`scripts/check-template.sh`** verifies the project-name/`.ioc` pairing, required CubeMX generation settings, ignored `.mxproject` metadata, and that the root CMake file does not take over HAL source selection. Run it after every CubeMX regeneration.
+- **`scripts/rename.sh <new_name>`** renames the project (CMake target and the `.ioc` fields and filename). It reads the current name from `CMakeLists.txt`, so it is re-runnable; it does **not** retarget the MCU. CI validates this workflow.
+- **`scripts/check-template.sh`** verifies the project-name/`.ioc` pairing, required CubeMX generation settings, ignored local-only paths, and that the root CMake file does not take over HAL source selection. Run it after every CubeMX regeneration.
 
 ## Architecture & where code goes
 
@@ -53,8 +52,8 @@ Ownership boundary:
 
 - **CubeMX-owned firmware code:** `Core/`, `Drivers/`, `cmake/stm32cubemx/`, `startup_*.s`, `*.ld`, and generated sections of the root `CMakeLists.txt`.
 - **Tracked source configuration:** `<project>.ioc`. It is the source of truth for clocks, pins, peripherals, middleware, HAL modules, and generated source selection.
-- **Template-owned assets:** root CMake extensions, `CMakePresets.json`, helper modules under `cmake/`, `scripts/`, `.github/`, `.vscode/`, and documentation.
-- **Local CubeMX metadata:** `.mxproject` is ignored and must not be committed.
+- **Template-owned assets:** root CMake extensions, `CMakePresets.json`, helper modules under `cmake/`, `scripts/`, `.github/`, and root-level guidance.
+- **Local-only assets:** `.mxproject`, `.vscode/`, and `docs/` are ignored and must not be committed.
 
 ## HAL and CubeMX contract (important)
 

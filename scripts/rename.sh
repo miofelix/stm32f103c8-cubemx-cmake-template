@@ -3,8 +3,7 @@
 # Rename this template's project name everywhere it appears:
 #   - CMakeLists.txt   (CMAKE_PROJECT_NAME -> the build target & artifact names)
 #   - the CubeMX .ioc  (ProjectName / ProjectFileName fields AND the filename)
-#   - .vscode/launch.json (the .elf path used by the debugger)
-#   - README.md / CLAUDE.md (artifact paths in the docs)
+#   - tracked template files containing build artifact paths
 #
 # Safe to re-run: the current name is read from CMakeLists.txt, not hard-coded.
 # Does NOT retarget the MCU (startup_*.s, *.ld linker script, STM32F103xB define,
@@ -54,10 +53,11 @@ fi
 # "<name>" never collides with the MCU identifiers (STM32F103xB,
 # startup_stm32f103xb.s, ...), so a literal whole-token replace is safe.
 if [ "$IN_GIT" -eq 1 ]; then
-  FILE_LIST="$(git grep -lI -F "$OLD" -- ':!Drivers' ':!scripts' || true)"
+  FILE_LIST="$(git grep -lI -F "$OLD" -- ':!Drivers' ':!scripts' ':!docs' ':!.vscode' || true)"
 else
   FILE_LIST="$(grep -rlI --exclude-dir=Drivers --exclude-dir=scripts \
-    --exclude-dir=build --exclude-dir=.git -F "$OLD" . || true)"
+    --exclude-dir=build --exclude-dir=.git --exclude-dir=docs \
+    --exclude-dir=.vscode -F "$OLD" . || true)"
 fi
 
 # Edit each file in place. The "-i.bak" + rm form is portable across GNU and

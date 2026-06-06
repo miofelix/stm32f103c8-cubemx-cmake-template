@@ -73,12 +73,9 @@ Makefile
 *.ewp.user
 *.dbgdt
 
-# VS Code local state. Keep shared task/debug configuration if added later.
-/.vscode/*
-!/.vscode/extensions.json
-!/.vscode/tasks.json
-!/.vscode/launch.json
-!/.vscode/c_cpp_properties.json
+# Local editor and project notes
+/.vscode/
+/docs/
 
 # CLion / JetBrains
 /.idea/

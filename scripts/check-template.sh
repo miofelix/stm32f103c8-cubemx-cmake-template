@@ -26,12 +26,13 @@ require_ioc_setting "ProjectManager.DeletePrevious=true"
 require_ioc_setting "ProjectManager.LibraryCopy=1"
 require_ioc_setting "ProjectManager.TargetToolchain=CMake"
 
-grep -Fqx '/.mxproject' .gitignore || die ".mxproject must be ignored"
+for local_path in "/.mxproject" "/.vscode/" "/docs/"; do
+  grep -Fqx "$local_path" .gitignore || die "$local_path must be ignored"
+done
 
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  if git ls-files --error-unmatch .mxproject >/dev/null 2>&1; then
-    die ".mxproject is local CubeMX metadata and must not be tracked"
-  fi
+  [ -z "$(git ls-files .mxproject .vscode docs)" ] ||
+    die ".mxproject, .vscode/, and docs/ are local-only and must not be tracked"
 fi
 
 if grep -Eq 'get_target_property\(.*STM32_Drivers|set_property\(TARGET STM32_Drivers|Drivers/STM32F1xx_HAL_Driver/Src/\*' CMakeLists.txt; then
