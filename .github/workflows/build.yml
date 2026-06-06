@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
@@ -19,19 +19,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Arm GNU toolchain
-        uses: carlosperate/arm-none-eabi-gcc-action@v1
-        with:
-          release: "13.2.Rel1"
-
-      - name: Install Ninja
-        run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - name: Install macOS dependencies
+        run: |
+          brew update
+          brew list --formula cmake >/dev/null 2>&1 || brew install cmake
+          brew list --formula ninja >/dev/null 2>&1 || brew install ninja
+          brew list --formula open-ocd >/dev/null 2>&1 || brew install open-ocd
+          brew list --cask gcc-arm-embedded >/dev/null 2>&1 || brew install --cask gcc-arm-embedded
 
       - name: Configure
         run: cmake --preset ${{ matrix.preset }}
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Verify template rename
+        if: matrix.preset == 'Debug'
+        run: |
+          tmpdir="$(mktemp -d)"
+          git archive --format=tar HEAD -o "$tmpdir/repo.tar"
+          tar -xf "$tmpdir/repo.tar" -C "$tmpdir"
+          rm "$tmpdir/repo.tar"
+          cd "$tmpdir"
+          scripts/rename.sh ci_demo_app
+          cmake --preset Debug
+          cmake --build --preset Debug
+          cmake --preset Release
+          cmake --build --preset Release
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4

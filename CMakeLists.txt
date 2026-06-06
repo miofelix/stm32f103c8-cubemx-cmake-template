@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.25)
 
 #
 # This file is generated only once,
@@ -39,13 +39,12 @@ add_subdirectory(cmake/stm32cubemx)
 
 # --- Batteries-included HAL --------------------------------------------------
 # cmake/stm32cubemx/CMakeLists.txt (CubeMX-regenerated) only compiles the driver
-# sources for peripherals enabled in the .ioc. To let ANY peripheral build
-# without re-running CubeMX, swap that curated subset on the STM32_Drivers target
-# for every source under Drivers/.../Src. Disabled modules compile to nothing
-# (guarded by HAL_<P>_MODULE_ENABLED in stm32f1xx_hal_conf.h) and unused code is
-# dropped at link time by -ffunction-sections/-fdata-sections + --gc-sections,
-# so the firmware image does not grow. This lives in the root list on purpose:
-# it is never overwritten by CubeMX regeneration.
+# sources for peripherals enabled in the .ioc. To let any F103C8 peripheral build
+# without re-running CubeMX just to add a driver file, swap that curated subset
+# on the STM32_Drivers target for every source under Drivers/.../Src. Module
+# selection remains in Core/Inc/stm32f1xx_hal_conf.h, matching the STM32 HAL
+# project convention. Disabled modules compile to nothing, and unused code is
+# dropped at link time by -ffunction-sections/-fdata-sections + --gc-sections.
 get_target_property(_mx_driver_src STM32_Drivers SOURCES)
 list(FILTER _mx_driver_src EXCLUDE REGEX "/Drivers/STM32F1xx_HAL_Driver/Src/")
 file(GLOB _hal_full_src CONFIGURE_DEPENDS
